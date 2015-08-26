@@ -53,7 +53,7 @@ typedef struct _edge{
 }Edge;
 
 void add_element(vector<extern_node>& src, int vertex, int vizinho, int peso);
-vector<extern_node> utils_tomem(string nome_arq);
+vector<extern_node> utils_tomem(fstream &sc);
 void gerar_vertices_arestas(vector<extern_node> grafo,set<int>& vertices,set<Edge>& edges);
 vector<extern_node> kruskal(set<int> vertices, set<Edge> edges);
 void merge(int a, int b, set<set<int> > &comp);
@@ -85,17 +85,15 @@ void add_elemento(vector<extern_node>& lista, int a, int b, int peso)
 		lista.push_back(n);
 	}
 }
-vector<extern_node> utils_tomem(string nome_arq)
+vector<extern_node> utils_tomem(fstream &sc)
 {
-	fstream sc;
 	vector<extern_node> grafo;
-	sc.open(nome_arq.c_str());
 	char *pch;
 	string s;
+	int nome;
 	while(getline(sc,s))
 	{
 		vector<int> lista;
-		extern_node n;
 		if(s!="")
 		{
 			pch = strtok((char*)s.c_str(),"\t -[];");
@@ -104,11 +102,11 @@ vector<extern_node> utils_tomem(string nome_arq)
 				lista.push_back(atoi(pch));
 				pch = strtok(NULL,"\t -[];");
 			}
-			n.nome = lista.at(0);
+			nome = lista.at(0);
 			for(int i=1;i<(int)lista.size();i+=2)
 			{
-				add_elemento(grafo,n.nome,lista.at(i),lista.at(i+1));
-				add_elemento(grafo,lista.at(i),n.nome,lista.at(i+1));
+				add_elemento(grafo,nome,lista.at(i),lista.at(i+1));
+				add_elemento(grafo,lista.at(i),nome,lista.at(i+1));
 				//n.vizinhos.push_back(intern_node(lista.at(i),lista.at(i+1)));
 			}
 			//grafo.push_back(n);
@@ -161,8 +159,6 @@ void merge(int a, int b, set<set<int> > &comp){
 	comp.erase(comp_aux_b);
 	comp_aux_a.insert(comp_aux_b.begin(), comp_aux_b.end());
 	comp.insert(comp_aux_a);
-
-
 }
 
 
@@ -210,6 +206,7 @@ vector<extern_node> kruskal(set<int> vertices, set<Edge> edges){
 	}
 	return lista;
 }
+
 void gerar_vertices_arestas(vector<extern_node> grafo,set<int>& vertices,set<Edge>& edges)
 {
 	int tam = grafo.size();
@@ -251,30 +248,45 @@ void gerar_vertices_arestas(vector<extern_node> grafo,set<int>& vertices,set<Edg
 
 int main(int argc,char**argv)
 {
+	fstream sc;
+	ofstream output;
+	string file_name;
+	
 	if(argc < 2)
 	{
 		cerr << "Usage: ./teste <nome_arq>.<ext>"<< endl;
 		return 1;
 	}
-	else
-	{
-		set<int> vertices;
-		set<Edge> edges;
 
-		vector<extern_node> grafo = utils_tomem(argv[1]);
-		for(int i=0;i<(int) grafo.size();i++)
-		{
-			cout << grafo[i] << endl;
-		}
-
-		gerar_vertices_arestas(grafo,vertices,edges);
-
-		grafo = kruskal(vertices, edges);
-		for(int i=0;i<(int) grafo.size();i++)
-		{
-			cout << grafo[i] << endl;
-		}
+	sc.open(argv[1]);
+	if (!sc.is_open()){
+		cout << "Arquivo inexistente\n";
+		return 1;
 	}
+	
+	
+	vector<extern_node> grafo = utils_tomem(sc);
+	sc.close();
+	for(int i=0;i<(int) grafo.size();i++)
+	{
+		cout << grafo[i] << endl;
+	}
+
+	set<int> vertices;
+	set<Edge> edges;
+	gerar_vertices_arestas(grafo,vertices,edges);
+
+	grafo = kruskal(vertices, edges);
+	
+	file_name = "saida_";
+	file_name.append(argv[1]);
+	output.open(file_name);
+	for(int i=0;i<(int) grafo.size();i++)
+	{
+		cout << grafo[i] << endl;
+		output << grafo[i] << endl;
+	}
+	output.close();
 	return 0;
 
 }
