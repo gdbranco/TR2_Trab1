@@ -26,7 +26,7 @@ typedef struct _en
 		os << it.nome << " ";
 		for(list<intern_node>::const_iterator i=it.vizinhos.begin();i!=it.vizinhos.end();i++)
 		{
-			os << i->nome << "[" << i->peso << "] ";
+			os << i->nome << "[" << i->peso << "]; ";
 		}
 		return os;
 	}
@@ -250,15 +250,16 @@ int main(int argc,char**argv)
 {
 	fstream sc;
 	ofstream output;
-	string file_name;
+	string file_name, input;
 	
 	if(argc < 2)
 	{
 		cerr << "Usage: ./teste <nome_arq>.<ext>"<< endl;
 		return 1;
 	}
-
-	sc.open(argv[1]);
+	
+	input = argv[1];
+	sc.open(input);
 	if (!sc.is_open()){
 		cout << "Arquivo inexistente\n";
 		return 1;
@@ -278,8 +279,16 @@ int main(int argc,char**argv)
 
 	grafo = kruskal(vertices, edges);
 	
+	string aux;
+	size_t pos = input.find_last_of("/");
+	if(pos != string::npos)
+		aux.assign(input.begin() + pos + 1, input.end());
+	else
+		aux = input;
+	
 	file_name = "saida_";
-	file_name.append(argv[1]);
+	file_name.append(aux);
+	
 	output.open(file_name);
 	for(int i=0;i<(int) grafo.size();i++)
 	{
@@ -288,5 +297,9 @@ int main(int argc,char**argv)
 	}
 	output.close();
 	return 0;
+	
+	string filename;
+
+	
 
 }
