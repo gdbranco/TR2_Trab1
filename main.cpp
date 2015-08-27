@@ -23,7 +23,7 @@ typedef struct _en
 	list<intern_node> vizinhos;
 	friend ostream& operator<<(ostream& os,const _en& it)
 	{
-		os << it.nome << " ";
+		os << it.nome << " - ";
 		for(list<intern_node>::const_iterator i=it.vizinhos.begin();i!=it.vizinhos.end();i++)
 		{
 			os << i->nome << "[" << i->peso << "]; ";
@@ -51,13 +51,19 @@ typedef struct _edge{
 		return nome == rhs.nome;
 	}
 }Edge;
-
+//Adiconar elemento na lista de adjacencia
 void add_element(vector<extern_node>& src, int vertex, int vizinho, int peso);
+//Passar o arquivo de entrada para uma lista de adjacencia
 vector<extern_node> utils_tomem(fstream &sc);
+//gerar vertices e arestas a partir da lista de adjacencia
 void gerar_vertices_arestas(vector<extern_node> grafo,set<int>& vertices,set<Edge>& edges);
+//Rodar o algoritmo de kruskal
 vector<extern_node> kruskal(set<int> vertices, set<Edge> edges);
+//Juntar conjuntos
 void merge(int a, int b, set<set<int> > &comp);
+//Achar conjuntos
 bool find(int a, int b, set<set<int> > comp);
+
 void add_elemento(vector<extern_node>& lista, int a, int b, int peso)
 {
 	bool achou = false;
@@ -85,31 +91,36 @@ void add_elemento(vector<extern_node>& lista, int a, int b, int peso)
 		lista.push_back(n);
 	}
 }
+
 vector<extern_node> utils_tomem(fstream &sc)
 {
 	vector<extern_node> grafo;
 	char *pch;
 	string s;
-	int nome;
+	int aux;
 	while(getline(sc,s))
 	{
 		vector<int> lista;
 		if(s!="")
 		{
-			pch = strtok((char*)s.c_str(),"\t -[];");
+			pch = strtok((char*)s.c_str(),"\t [];");
 			while(pch!=NULL)
 			{
-				lista.push_back(atoi(pch));
-				pch = strtok(NULL,"\t -[];");
+				aux = atoi(pch);
+				if(string(pch)=="-")
+				{
+					pch = strtok(NULL,"\t [];");
+					continue;
+				}
+				lista.push_back(aux);
+				pch = strtok(NULL,"\t [];");
 			}
-			nome = lista.at(0);
 			for(int i=1;i<(int)lista.size();i+=2)
 			{
-				add_elemento(grafo,nome,lista.at(i),lista.at(i+1));
-				add_elemento(grafo,lista.at(i),nome,lista.at(i+1));
-				//n.vizinhos.push_back(intern_node(lista.at(i),lista.at(i+1)));
+				add_elemento(grafo,lista.at(0),lista.at(i),lista.at(i+1));
+				add_elemento(grafo,lista.at(i),lista.at(0),lista.at(i+1));
 			}
-			//grafo.push_back(n);
+			lista.clear();
 		}
 	}
 	return grafo;
@@ -240,7 +251,6 @@ void gerar_vertices_arestas(vector<extern_node> grafo,set<int>& vertices,set<Edg
 			aux.peso = it->peso;
 
 			//Inserimos a aresta no conjunto de arestas. Caso o nome da aresta ja exista, o conjunto nao insere nada
-			//if(edges.find(aux) == edges.end() )
 			edges.insert(aux);
 		}
 	}
@@ -254,7 +264,7 @@ int main(int argc,char**argv)
 	
 	if(argc < 2)
 	{
-		cerr << "Usage: ./teste <nome_arq>.<ext>"<< endl;
+		cerr << "Usage: ./kruskal <nome_arq>.<ext>"<< endl;
 		return 1;
 	}
 	
@@ -298,8 +308,4 @@ int main(int argc,char**argv)
 	output.close();
 	return 0;
 	
-	string filename;
-
-	
-
 }
